@@ -6,7 +6,7 @@ const express = require('express');
 const PORT = process.env.PORT || 3000;
 const app = express();
 
-const conString = 'postgres://postgres:password@localhost:8080/kilovolt';
+const conString = 'postgres://alex:llama@localhost:5432/alex';
 const client = new pg.Client(conString);
 client.connect();
 client.on('error', error => {
@@ -45,8 +45,11 @@ INNER JOIN authors ON (articles.author_id = authors.author_id);
 
 app.post('/articles', (request, response) => {
   client.query(
-    '',
-    [],
+    `INSERT INTO 
+    authors("authorUrl", author) 
+    VALUES($1, $2);`,
+    [request.body.authorUrl,
+    request.body.author],
     function(err) {
       if (err) console.error(err);
       // REVIEW: This is our second query, to be executed when this first query is complete.
@@ -56,8 +59,8 @@ app.post('/articles', (request, response) => {
 
   function queryTwo() {
     client.query(
-      ``,
-      [],
+      `SELECT * FROM authors WHERE author = $1`,
+      [request.body.author],
       function(err, result) {
         if (err) console.error(err);
 
@@ -68,9 +71,12 @@ app.post('/articles', (request, response) => {
   }
 
   function queryThree(author_id) {
+    console.log(request.body);
     client.query(
-      ``,
-      [],
+      `INSERT INTO authors
+      (author_id, "authorUrl", author)
+      VALUES($1, $2, $3);`,
+      [author_id, request.body.authorUrl, request.body.author],
       function(err) {
         if (err) console.error(err);
         response.send('insert complete');
