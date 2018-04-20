@@ -6,7 +6,7 @@ const express = require('express');
 const PORT = process.env.PORT || 3000;
 const app = express();
 
-const conString = '';
+const conString = 'postgres://postgres:password@localhost:8080/kilovolt';
 const client = new pg.Client(conString);
 client.connect();
 client.on('error', error => {
@@ -24,7 +24,17 @@ app.get('/new', (request, response) => {
 
 // REVIEW: These are routes for making API calls to enact CRUD operations on our database.
 app.get('/articles', (request, response) => {
-  client.query(``)
+  client.query(`
+  SELECT 
+authors.author,
+authors."authorUrl",
+articles.title,
+articles.category,
+articles."publishedOn",
+articles.body
+FROM articles
+INNER JOIN authors ON (articles.author_id = authors.author_id);
+`)
     .then(result => {
       response.send(result.rows);
     })
