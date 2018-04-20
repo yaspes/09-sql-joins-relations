@@ -29,6 +29,8 @@ app.get('/articles', (request, response) => {
   SELECT 
 authors.author,
 authors."authorUrl",
+authors.author_id,
+articles.article_id,
 articles.title,
 articles.category,
 articles."publishedOn",
@@ -87,17 +89,25 @@ app.post('/articles', (request, response) => {
 });
 
 app.put('/articles/:id', function(request, response) {
+  console.log(request.params.id);
+  console.log(request.body);
   client.query( 
     `UPDATE authors
      SET author=$2, "authorUrl"=$3
      WHERE author_id=$1
     `,
-    [request.param.id, request.body.author, request.body.authorUrl]
+    [request.body.author_id, request.body.author, request.body.authorUrl]
   )
     .then(() => {
       client.query(
-        ``,
-        []
+        `UPDATE articles
+        SET body=$2, category=$3, publishedOn=$4, title=$5
+        WHERE article_id = $1`,
+      [request.params.id,
+      request.body.body,
+      request.body.category,
+      request.body.publishedOn,
+      request.body.author]
       )
     })
     .then(() => {
@@ -122,7 +132,7 @@ app.delete('/articles/:id', (request, response) => {
 });
 
 app.delete('/articles', (request, response) => {
-  client.query('DELETE FROM articles')
+  client.query('TRUNCATE articles')
     .then(() => {
       response.send('Delete complete');
     })

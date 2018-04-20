@@ -64,6 +64,7 @@ Article.prototype.deleteRecord = function(callback) {
 };
 
 Article.prototype.updateRecord = function(callback) {
+  console.log(`/articles/${this.article_id}`)
   $.ajax({
     url: `/articles/${this.article_id}`,
     method: 'PUT',
